@@ -1,0 +1,4 @@
+channels = #example
+nick = umble
+server-host = irc.example.org
+server-port = 7000
