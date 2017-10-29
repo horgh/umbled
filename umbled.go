@@ -14,6 +14,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"strconv"
 	"strings"
 	"time"
@@ -176,8 +177,13 @@ func run(conf *Config, c *godrop.Client) {
 
 		m, err := c.ReadMessage()
 		if err != nil {
+			// Hitting a deadline is not interesting.
+			if err, ok := err.(net.Error); ok && err.Timeout() {
+				continue
+			}
+
 			s.addError("error reading: %s", err)
-			// If we have EOF then we'll just see that from now on, so abort.
+			// If we hit EOF then we'll see it from now on, so give up.
 			if s.shouldGiveUp() || err == io.EOF {
 				_ = c.Close()
 			}
